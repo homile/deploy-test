@@ -71,7 +71,7 @@ export const StudyCard = ({data}) => {
                     </ul>
                 </ProjectInfo>
                 <StudyInfo>
-                    <p>{data.nickName} <em>모집 중 {data.haveHeadCount}/{data.totalHeadCount}명</em></p>
+                    <p>{data.nickName} <em>{diffDay <= 0 || data.haveHeadCount === data.totalHeadCount ? '모집 종료' : '모집 중'} {data.haveHeadCount}/{data.totalHeadCount}명</em></p>
                 </StudyInfo>
             </ItemCard>
         </>
@@ -126,6 +126,7 @@ const ProjectInfo = styled.div`
     .skill-area , .meta-area{
         display:flex;
         gap: 5px;
+        flex-wrap: wrap;
     }
     .skill-area{
         li{

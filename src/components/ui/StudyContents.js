@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { StudyCard } from "./StudyCard";
-import { ButtonPrimary } from "./Button";
 import { SwitchButton } from "./SwitchButton";
 
 export const StudyContents = ({posts}) => {
@@ -10,29 +9,29 @@ export const StudyContents = ({posts}) => {
     const [postData, setPostData] = useState([]);
 
     const filtered = {
-        menuTab: ["전체", "프론트엔드", "백엔드"]};
+        menuTab: ["전체", "프론트엔드", "백엔드"],
+        skillTab: ["전체", "frontend", "backend"]
+    };
 
     useEffect(() => {
-        setPostData(posts)
+        setPostData(posts);
     }, [posts]);
 
     useEffect(() => {
         if(isOn){
             const filterdData = posts.filter((data) => {return new Date(data.startDate) > new Date()});
             setPostData(filterdData);
-            if(currentTab === 1){
-                setPostData(filterdData.filter ((data) => {return data.devType === "frontend"}));
-            }
-            if(currentTab === 2){
-                setPostData(filterdData.filter ((data) => {return data.devType === "backend"}));
+            for(let i= 1 ; i<filtered.skillTab.length; i++){
+                if(currentTab === i){
+                    setPostData(filterdData.filter ((data) => {return data.devType === filtered.skillTab[i]}));
+                }
             }
         }else{
             setPostData(posts);
-            if(currentTab === 1){
-                setPostData(posts.filter ((data) => {return data.devType === "frontend"}));
-            }
-            if(currentTab === 2){
-                setPostData(posts.filter ((data) => {return data.devType === "backend"}));
+            for(let i= 1 ; i<filtered.skillTab.length; i++){
+                if(currentTab === i){
+                    setPostData(posts.filter ((data) => {return data.devType === filtered.skillTab[i]}));
+                }
             }
         }
     }, [isOn, currentTab]);
@@ -66,9 +65,6 @@ export const StudyContents = ({posts}) => {
                 <StudyCardList>
                     {postData.map((data, idx) => <StudyCard key={data.id} data={data} idx={idx} />)}
                 </StudyCardList>
-                <div className="button-area">
-                    <ButtonPrimary>+ 더보기</ButtonPrimary>
-                </div>
             </StudyList>
         </div>
     );
