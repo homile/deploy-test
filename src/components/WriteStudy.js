@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { WriteInputContainer } from "./ui/WriteInput";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+
+import { WriteInputContainer } from "./ui/WriteInput";
 import { SelectBox } from "./ui/SelectBox";
 import { DatePick } from "./DatePick";
 import CheckBox from "./CheckBox";
 import { ButtonPrimary } from "./ui/Button";
+import Modal from "./Modal";
 
 import { db } from "../firebase-config";
 import { collection, addDoc } from "firebase/firestore";
@@ -20,7 +23,7 @@ const onOffOptions = [
   { value: "off", name: "오프라인" },
 ];
 
-const WriteStudy = () => {
+const WriteStudy = ({ setIsOk, setIsWrite }) => {
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [devType, setDevType] = useState("frontend");
@@ -29,6 +32,29 @@ const WriteStudy = () => {
   const [onOff, setOnOff] = useState("on");
   const [content, setContent] = useState("");
   const dateCreated = new Date();
+  const nickName = useSelector((state) => state.loginReducer.nickName);
+
+  const [isOpenOk, setIsOpenOk] = useState(false);
+  const [isOpenCancel, setIsOpenCancel] = useState(false);
+
+  const openModalHandler1 = () => {
+    setIsOpenOk(!isOpenOk);
+  };
+
+  const openModalHandler2 = () => {
+    setIsOpenCancel(!isOpenCancel);
+  };
+
+  const handleInit = () => {
+    setTitle("");
+    setStartDate(new Date());
+    setDevType("frontend");
+    setDevStack([]);
+    setTotalHeadCount(0);
+    setOnOff("on");
+    setContent("");
+    setIsWrite(false);
+  };
 
   const postsCollectionRef = collection(db, "posts");
 
@@ -42,14 +68,13 @@ const WriteStudy = () => {
       devType,
       haveHeadCount: 0,
       id: uuid(),
-      nickName: "haza",
+      nickName,
       onOff,
       startDate: startDate.toLocaleDateString(),
       title,
       totalHeadCount: totalHeadCount,
     });
-
-    alert("스터디 모집 글 작성이 완료되었습니다:)");
+    setIsOk(true);
   };
 
   return (
@@ -80,6 +105,7 @@ const WriteStudy = () => {
               options={devTypeOptions}
               devTypeOptions={devTypeOptions}
               setDevType={setDevType}
+              setDevStack={setDevStack}
             ></SelectBox>
           </div>
         </WriteInputContainer>
@@ -134,8 +160,28 @@ const WriteStudy = () => {
         </div>
       </WriteInputContainer>
       <ButtonContainer>
-        <ButtonPrimary background="#B6B6B6">취소</ButtonPrimary>
-        <ButtonPrimary onClick={createPosts}>작성완료</ButtonPrimary>
+        <ButtonPrimary onClick={openModalHandler2} background="#B6B6B6">
+          취소
+        </ButtonPrimary>
+        {isOpenCancel && (
+          <Modal
+            isOpen={isOpenCancel}
+            handleModal={handleInit}
+            setIsOpen={setIsOpenCancel}
+          >
+            등록을 취소하시겠습니까?
+          </Modal>
+        )}
+        <ButtonPrimary onClick={openModalHandler1}>작성완료</ButtonPrimary>
+        {isOpenOk && (
+          <Modal
+            isOpen={isOpenOk}
+            handleModal={createPosts}
+            setIsOpen={setIsOpenOk}
+          >
+            스터디 모집 글을 등록하시겠습니까?
+          </Modal>
+        )}
       </ButtonContainer>
     </>
   );
